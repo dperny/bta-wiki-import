@@ -69,9 +69,12 @@ func (md MechDef) ToWiki() string {
 		locations[i] = location.ToWiki(md.Description.Id)
 	}
 
+	equipmentDupes := map[InventoryEquipment]int{}
 	inventory := make([]string, len(md.Inventory))
 	for i, equipment := range md.Inventory {
-		inventory[i] = equipment.ToWiki(md.Description.Id)
+		count := equipmentDupes[equipment]
+		inventory[i] = equipment.ToWiki(md.Description.Id, false, count)
+		equipmentDupes[equipment] = count + 1
 	}
 
 	if len(md.MechTags.Items) > 0 {

@@ -48,10 +48,9 @@ type InventoryEquipment struct {
 	ComponentDefID   string
 	ComponentDefType string
 	HardpointSlot    int
-	IsFixed          bool
 }
 
-func (i InventoryEquipment) ToWiki(mechID string) string {
+func (i InventoryEquipment) ToWiki(mechID string, fixed bool, count int) string {
 	wt := NewWikiTemplate(InventoryEquipmentTemplate)
 
 	wt.AddArg("MechID", mechID)
@@ -60,7 +59,8 @@ func (i InventoryEquipment) ToWiki(mechID string) string {
 	wt.AddArg("ComponentDefID", i.ComponentDefID)
 	wt.AddArg("ComponentDefType", i.ComponentDefType)
 	wt.AddArg("HardpointSlot", fmt.Sprint(i.HardpointSlot))
-	wt.AddArg("FixedEquipment", fmt.Sprint(i.IsFixed))
+	wt.AddArg("FixedEquipment", fmt.Sprint(fixed))
+	wt.AddArg("Count", count)
 
 	return wt.String()
 }

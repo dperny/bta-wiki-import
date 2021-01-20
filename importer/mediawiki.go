@@ -31,8 +31,8 @@ func Import(wikidata string, dryrun bool, username, password string) error {
 		}
 	}
 
-	ids := GetExistingGear(w)
-	logrus.Infof("existing gear: %d", len(ids))
+	ids := GetExistingPages(w)
+	logrus.Infof("existing pages: %d", len(ids))
 
 	wikifiles, err := ioutil.ReadDir(wikidata)
 	if err != nil {
@@ -151,7 +151,7 @@ func Import(wikidata string, dryrun bool, username, password string) error {
 	return nil
 }
 
-func GetExistingGear(w *mwclient.Client) map[string]bool {
+func GetExistingPages(w *mwclient.Client) map[string]bool {
 	limit := 200
 	offset := 0
 
@@ -169,12 +169,12 @@ func GetExistingGear(w *mwclient.Client) map[string]bool {
 
 		resp, err := w.Get(parameters)
 		if err != nil {
-			fmt.Println(err)
+			logrus.Errorf(err.Error())
 		}
 
 		cargoquery, err := resp.GetObjectArray("cargoquery")
 		if err != nil {
-			fmt.Println(err)
+			logrus.Errorf(err.Error())
 		}
 
 		if len(cargoquery) == 0 {
@@ -183,9 +183,48 @@ func GetExistingGear(w *mwclient.Client) map[string]bool {
 		for _, row := range cargoquery {
 			id, err := row.GetString("title", "Id")
 			if err != nil {
-				fmt.Println(err)
+				logrus.Errorf(err.Error())
 			}
 			ids[id] = false
+		}
+		offset = offset + limit
+	}
+
+	offset = 0
+	for {
+		parameters := map[string]string{
+			"action": "cargoquery",
+			"tables": "Chassis",
+			"fields": "VariantName,Name",
+			"format": "json",
+			"limit":  strconv.Itoa(limit),
+			"offset": strconv.Itoa(offset),
+		}
+
+		resp, err := w.Get(parameters)
+		if err != nil {
+			logrus.Errorf(err.Error())
+		}
+
+		cargoquery, err := resp.GetObjectArray("cargoquery")
+		if err != nil {
+			logrus.Errorf(err.Error())
+		}
+
+		if len(cargoquery) == 0 {
+			break
+		}
+		for _, row := range cargoquery {
+			variant, err := row.GetString("title", "VariantName")
+			if err != nil {
+				logrus.Errorf(err.Error())
+			}
+			name, err := row.GetString("title", "Name")
+			if err != nil {
+				logrus.Errorf(err.Error())
+			}
+
+			ids[fmt.Sprintf("MechDef_%s_%s", name, variant)] = false
 		}
 		offset = offset + limit
 	}

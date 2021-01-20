@@ -33,7 +33,7 @@ var ExportCmd = &cobra.Command{
 					}
 				}
 				if blacklisted {
-					logrus.Infof("Skipping BLACKLISTED mech %s", mech.Mech.Description.Name)
+					logrus.Infof("Skipping BLACKLISTED mech %s", mech.Chassis.Description.Name)
 					continue
 				}
 

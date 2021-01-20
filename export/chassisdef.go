@@ -134,8 +134,11 @@ func (cd ChassisDef) ToWiki() string {
 	}
 
 	inventory := make([]string, len(cd.FixedEquipment))
+	equipmentDupes := map[InventoryEquipment]int{}
 	for i, equipment := range cd.FixedEquipment {
-		inventory[i] = equipment.ToWiki(cd.Description.Id)
+		count := equipmentDupes[equipment]
+		inventory[i] = equipment.ToWiki(cd.Description.Id, true, count)
+		equipmentDupes[equipment] = count + 1
 	}
 
 	return wt.String() + strings.Join(locations, "") + strings.Join(inventory, "")

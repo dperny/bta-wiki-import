@@ -20,5 +20,5 @@ var RootCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.PersistentFlags().BoolVar(&flagColor, "color", false, "enable color logging")
+	RootCmd.PersistentFlags().BoolVar(&flagColor, "color", true, "enable color logging")
 }

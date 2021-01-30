@@ -84,7 +84,7 @@ type Gear struct {
 
 type JumpJet struct {
 	Gear
-	JumpCapacity int
+	JumpCapacity float64
 	MinTonnage   int
 	MaxTonnage   int
 }
@@ -355,6 +355,8 @@ func (g Gear) ToWiki() string {
 				templateType = EngineShieldWikiTemplate
 			case "EngineHeatBlock":
 				templateType = EngineHeatBlockWikiTemplate
+			case "Heatsink":
+				templateType = HeatsinkWikiTemplate
 			}
 		}
 

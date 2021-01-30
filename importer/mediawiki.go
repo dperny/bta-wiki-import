@@ -3,6 +3,7 @@ package importer
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -13,6 +14,9 @@ import (
 )
 
 const URL = "https://www.bta3062.com/api.php"
+
+// BATCH_SIZE is the number of wiki pages to retrieve at one time.
+const BATCH_SIZE = 20
 
 func Import(wikidata string, dryrun bool, username, password string) error {
 	w, err := mwclient.New(URL, "")
@@ -26,9 +30,10 @@ func Import(wikidata string, dryrun bool, username, password string) error {
 
 	err = w.Login(username, password)
 	if err != nil {
-		if !dryrun {
-			return fmt.Errorf("error logging in: %s", err)
-		}
+		logrus.Warnf("error logging in: %s", err)
+		// if !dryrun {
+		// return fmt.Errorf("error logging in: %s", err)
+		// }
 	}
 
 	ids := GetExistingPages(w)
@@ -42,68 +47,106 @@ func Import(wikidata string, dryrun bool, username, password string) error {
 	logrus.Infof("Loading %d wiki files", len(wikifiles))
 
 	var (
-		creations = 0
-		updates   = 0
-		unchanged = 0
+		creations = map[string]struct{}{}
+		updates   = map[string]struct{}{}
+		unchanged = map[string]struct{}{}
 	)
-	for _, fileinfo := range wikifiles {
-		if !strings.HasSuffix(fileinfo.Name(), ".wiki") {
-			logrus.Warnf("Skipping non-wiki file %s")
-			continue
-		}
-		pageName := strings.TrimSuffix(fileinfo.Name(), ".wiki")
-		ids[pageName] = true
+	doBatch := func(wikifiles []os.FileInfo) {
+		pages := []string{}
+		pageData := map[string]mwclient.BriefRevision{}
 
-		// check if there is an old page
-		content, _, err := w.GetPageByName(pageName)
+		for _, fileinfo := range wikifiles {
+			if !strings.HasSuffix(fileinfo.Name(), ".wiki") {
+				logrus.Warnf("Skipping non-wiki file %s")
+				continue
+			}
+			pageTitle := strings.TrimSuffix(fileinfo.Name(), ".wiki")
+			ids[pageTitle] = true
+			// pageName is the pageTitle with the namespace included.
+			pageName := fmt.Sprintf("RawData:%s", pageTitle)
+			pages = append(pages, pageName)
+		}
+
+		pageData, err := w.GetPagesByName(pages...)
 		for err != nil {
 			if strings.Contains(err.Error(), "not found") {
 				break
 			}
-			logrus.Warnf("Error getting page %s, retrying: %s", pageName, err)
+			logrus.Warnf("Error getting pages, retrying: %s", err)
 			time.Sleep(time.Second)
-			content, _, err = w.GetPageByName(pageName)
+			pageData, err = w.GetPagesByName(pages...)
 		}
 
-		if content != "" {
-			logrus.Debugf("Page %s already has content", pageName)
-		} else {
-			creations = creations + 1
-			logrus.Infof("Page %s does not yet exist", pageName)
-		}
-		ids[pageName] = true
-
-		fileBytes, err := ioutil.ReadFile(filepath.Join(wikidata, fileinfo.Name()))
-		fileContent := string(fileBytes)
-		if err != nil {
-			logrus.Errorf("Error reading %s: %s", fileinfo.Name(), err)
-			continue
-		}
-
-		if strings.TrimSpace(fileContent) == strings.TrimSpace(content) {
-			logrus.Infof("%s file content matches existing page content", pageName)
-			unchanged = unchanged + 1
-		} else {
-			if content != "" {
-				logrus.Infof("%s page content does not match", pageName)
-				updates = updates + 1
+		for _, fileinfo := range wikifiles {
+			if !strings.HasSuffix(fileinfo.Name(), ".wiki") {
+				logrus.Warnf("Skipping non-wiki file %s")
+				continue
 			}
-			if !dryrun {
-				if err := w.Edit(map[string]string{
-					"title":   pageName,
-					"text":    fileContent,
-					"summary": "automated page update",
-				}); err != nil {
-					logrus.Errorf("Error writing page %s to wiki: %s\n", pageName, err)
+			pageTitle := strings.TrimSuffix(fileinfo.Name(), ".wiki")
+			pageName := fmt.Sprintf("RawData:%s", pageTitle)
+
+			// check if there is an old page
+			pageRev, ok := pageData[pageName]
+			if !ok {
+				logrus.Warnf("page %s not in set", pageName)
+				continue
+			}
+			content := pageRev.Content
+
+			if content != "" {
+				logrus.Debugf("Page %s already has content", pageName)
+			} else {
+				creations[pageTitle] = struct{}{}
+				logrus.Infof("CREATE %s", pageName)
+			}
+			ids[pageName] = true
+
+			fileBytes, err := ioutil.ReadFile(filepath.Join(wikidata, fileinfo.Name()))
+			fileContent := string(fileBytes)
+			if err != nil {
+				logrus.Errorf("Error reading %s: %s", fileinfo.Name(), err)
+				continue
+			}
+
+			if strings.TrimSpace(fileContent) == strings.TrimSpace(content) {
+				logrus.Debugf("UNCHANGED %s", pageName)
+				unchanged[pageTitle] = struct{}{}
+			} else {
+				if content != "" {
+					logrus.Infof("UPDATE %s", pageName)
+					updates[pageTitle] = struct{}{}
+				}
+				if !dryrun {
+					if err := w.Edit(map[string]string{
+						"title":   pageName,
+						"text":    fileContent,
+						"summary": "automated page update",
+					}); err != nil {
+						logrus.Errorf("Error writing page %s to wiki: %s\n", pageName, err)
+					}
 				}
 			}
 		}
 	}
 
-	deletions := 0
+	// do batches of pages, so we can pull down page info all at once.
+	for i := 0; i < len(wikifiles); i = i + BATCH_SIZE {
+		j := i + BATCH_SIZE
+		if j > len(wikifiles) {
+			j = len(wikifiles)
+		}
+		logrus.Infof(
+			"doing batch from %s (%d) to %s (%d) (%d total)",
+			wikifiles[i].Name(), i, wikifiles[j-1].Name(), j, len(wikifiles),
+		)
+		doBatch(wikifiles[i:j])
+	}
+
+	deletions := map[string]struct{}{}
 
 	logrus.Info("updated pages, deleting unused")
 	for id, included := range ids {
+		pageName := fmt.Sprintf("RawData:%s", id)
 		if !included {
 			token, err := w.GetToken(mwclient.CSRFToken)
 			if err != nil {
@@ -111,40 +154,40 @@ func Import(wikidata string, dryrun bool, username, password string) error {
 				continue
 			}
 			if !dryrun {
-				logrus.Infof("Deleting page %s", id)
+				logrus.Infof("DELETE %s", pageName)
 				// delete the page
 				_, err = w.Post(map[string]string{
 					"action": "delete",
 					"reason": "updater determined page no longer in use",
-					"title":  id,
+					"title":  pageName,
 					"token":  token,
 				})
 				for err != nil {
-					logrus.Errorf("error deleting page %s (retrying): %s", id, err)
+					logrus.Errorf("error deleting page %s (retrying): %s", pageName, err)
 					time.Sleep(1 * time.Second)
 					_, err = w.Post(map[string]string{
 						"action": "delete",
 						"reason": "updater determined page no longer in use",
-						"title":  id,
+						"title":  pageName,
 						"token":  token,
 					})
 				}
 			} else {
-				logrus.Infof("would delete %s", id)
+				logrus.Infof("DELETE %s", pageName)
 			}
-			deletions = deletions + 1
+			deletions[id] = struct{}{}
 		}
 	}
 
 	if dryrun {
 		logrus.Infof(
 			"dry run, would have created %d, updated %d, deleted %d, and left %d unchanged",
-			creations, updates, deletions, unchanged,
+			len(creations), len(updates), len(deletions), len(unchanged),
 		)
 	} else {
 		logrus.Infof(
 			"created %d, updated %d, deleted %d, and left %d unchanged",
-			creations, updates, deletions, unchanged,
+			len(creations), len(updates), len(deletions), len(unchanged),
 		)
 	}
 

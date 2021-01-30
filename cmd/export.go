@@ -147,7 +147,7 @@ var ExportCmd = &cobra.Command{
 				}
 				filename := makeFilename(jumpjet.Description)
 
-				logrus.Infof("Writing jumpjet  wiki %s", filename)
+				logrus.Infof("Writing jumpjet wiki %s", filename)
 
 				path := filepath.Join(destination, filename)
 

@@ -2,6 +2,7 @@ package export
 
 import (
 	"fmt"
+	"strings"
 )
 
 const InventoryEquipmentTemplate = "MechInventory"
@@ -30,7 +31,7 @@ func (d Description) WikiArgs(wt *WikiTemplate) {
 	wt.AddArg("UIName", d.UIName)
 	wt.AddArg("Id", d.Id)
 	wt.AddArg("Name", d.Name)
-	wt.AddArg("Details", d.Details)
+	wt.AddArg("Details", strings.ReplaceAll(d.Details, "\r", ""))
 	wt.AddArg("Icon", d.Icon)
 }
 

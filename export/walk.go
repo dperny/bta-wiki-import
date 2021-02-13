@@ -83,7 +83,7 @@ func WalkMechs(modpath string, chassisdefPaths, mechdefPaths []string) (map[stri
 			}
 		}
 	}
-	logrus.Infof("parsed %d chassisdefs", len(chassisDefs))
+	logrus.Debugf("parsed %d chassisdefs", len(chassisDefs))
 
 	for _, mechdefPath := range mechdefPaths {
 		p := filepath.Join(modpath, mechdefPath)
@@ -120,7 +120,7 @@ func WalkMechs(modpath string, chassisdefPaths, mechdefPaths []string) (map[stri
 		}
 	}
 
-	logrus.Infof("parsed %d mechdefs", len(mechs))
+	logrus.Debugf("parsed %d mechdefs", len(mechs))
 
 	return mechs, errors
 }
@@ -156,7 +156,7 @@ func WalkGear(modpath string, gearPaths []string) ([]Gear, []error) {
 		}
 	}
 
-	logrus.Infof("parsed %d gear", len(allGear))
+	logrus.Debugf("parsed %d gear", len(allGear))
 	return allGear, errors
 }
 
@@ -194,7 +194,7 @@ func WalkJumpJets(modpath string, jumpjetPaths []string) ([]JumpJet, []error) {
 		}
 	}
 
-	logrus.Infof("parsed %d jumpjets", len(jumpjets))
+	logrus.Debugf("parsed %d jumpjets", len(jumpjets))
 	return jumpjets, errors
 }
 
@@ -232,7 +232,7 @@ func WalkWeapons(modpath string, weaponPaths []string) ([]Weapon, []error) {
 		}
 	}
 
-	logrus.Infof("parsed %d weapons", len(weapons))
+	logrus.Debugf("parsed %d weapons", len(weapons))
 	return weapons, errors
 }
 
@@ -362,27 +362,27 @@ func WalkMod(modpath string) (ModData, []error) {
 		switch manifest.Type {
 		case ManifestTypeChassisDef:
 			chassisdefPaths = append(chassisdefPaths, manifest.Path)
-			logrus.Infof("mod defines chassisdefs at %s", manifest.Path)
+			logrus.Debugf("mod defines chassisdefs at %s", manifest.Path)
 		case ManifestTypeMechDef:
 			mechdefPaths = append(mechdefPaths, manifest.Path)
-			logrus.Infof("mod defines mechdefs at %s", manifest.Path)
+			logrus.Debugf("mod defines mechdefs at %s", manifest.Path)
 		case ManifestTypeHeatsink, ManifestTypeUpgrade:
 			gearPaths = append(gearPaths, manifest.Path)
-			logrus.Infof("mod defines %s at %s", manifest.Type, manifest.Path)
+			logrus.Debugf("mod defines %s at %s", manifest.Type, manifest.Path)
 		case ManifestTypeJumpJet:
 			jumpjetPaths = append(jumpjetPaths, manifest.Path)
-			logrus.Infof("mod define jump jets at %s", manifest.Type, manifest.Path)
+			logrus.Debugf("mod define jump jets at %s", manifest.Type, manifest.Path)
 		case ManifestTypeWeapon:
 			weaponPaths = append(weaponPaths, manifest.Path)
-			logrus.Infof("mod defines weapons at %s", manifest.Path)
+			logrus.Debugf("mod defines weapons at %s", manifest.Path)
 		case ManifestTypeAmmunitionBox:
 			ammoBoxPaths = append(ammoBoxPaths, manifest.Path)
-			logrus.Infof("mod defines ammo box at %s", manifest.Path)
+			logrus.Debugf("mod defines ammo box at %s", manifest.Path)
 		case ManifestTypeAmmunition:
 			ammoPaths = append(ammoPaths, manifest.Path)
-			logrus.Infof("mod defines ammo at %s", manifest.Path)
+			logrus.Debugf("mod defines ammo at %s", manifest.Path)
 		default:
-			logrus.Warnf("ignoring unknown manifest type %s", manifest.Type)
+			logrus.Debugf("ignoring unknown manifest type %s", manifest.Type)
 		}
 	}
 

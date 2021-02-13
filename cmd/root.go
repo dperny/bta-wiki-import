@@ -7,6 +7,7 @@ import (
 
 var (
 	flagColor bool
+	flagDebug bool
 )
 
 var RootCmd = &cobra.Command{
@@ -16,9 +17,13 @@ var RootCmd = &cobra.Command{
 		if flagColor {
 			logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true})
 		}
+		if flagDebug {
+			logrus.SetLevel(logrus.DebugLevel)
+		}
 	},
 }
 
 func init() {
 	RootCmd.PersistentFlags().BoolVar(&flagColor, "color", true, "enable color logging")
+	RootCmd.PersistentFlags().BoolVar(&flagDebug, "debug", false, "enable debug-level logging")
 }

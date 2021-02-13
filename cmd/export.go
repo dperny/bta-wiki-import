@@ -16,6 +16,21 @@ func makeFilename(desc export.Description) string {
 	return fmt.Sprintf("%s.wiki", desc.Id)
 }
 
+var LintCmd = &cobra.Command{
+	Use:   "lint <mod directory>",
+	Short: "parse the mod directory but do not write out wikitext",
+	Run: func(cmd *cobra.Command, args []string) {
+		modDirectory := args[0]
+
+		// walk the mod directory
+		_, errs := export.WalkModsDirectory(modDirectory)
+		if len(errs) > 0 {
+			fmt.Printf("%d errors when parsing mods", len(errs))
+			os.Exit(1)
+		}
+	},
+}
+
 var ExportCmd = &cobra.Command{
 	Use:   "export <mod directory> <destination>",
 	Short: "export all mod data to wikitext",
@@ -39,7 +54,7 @@ var ExportCmd = &cobra.Command{
 
 				filename := fmt.Sprintf("MechDef_%s_%s.wiki", mech.Chassis.Description.Name, variant)
 
-				logrus.Infof("Writing mech wiki %s", filename)
+				logrus.Debugf("Writing mech wiki %s", filename)
 
 				path := filepath.Join(destination, filename)
 
@@ -85,7 +100,7 @@ var ExportCmd = &cobra.Command{
 				}
 				filename := makeFilename(gear.Description)
 
-				logrus.Infof("Writing gear wiki %s", filename)
+				logrus.Debugf("Writing gear wiki %s", filename)
 
 				path := filepath.Join(destination, filename)
 
@@ -116,7 +131,7 @@ var ExportCmd = &cobra.Command{
 				}
 				filename := makeFilename(weapon.Description)
 
-				logrus.Infof("Writing weapon wiki %s", filename)
+				logrus.Debugf("Writing weapon wiki %s", filename)
 
 				path := filepath.Join(destination, filename)
 
@@ -147,13 +162,13 @@ var ExportCmd = &cobra.Command{
 				}
 				filename := makeFilename(jumpjet.Description)
 
-				logrus.Infof("Writing jumpjet wiki %s", filename)
+				logrus.Debugf("Writing jumpjet wiki %s", filename)
 
 				path := filepath.Join(destination, filename)
 
 				file, err := os.Create(path)
 				if err != nil {
-					logrus.Infof("Error opening %s: %s", path, err)
+					logrus.Errorf("Error opening %s: %s", path, err)
 					continue
 				}
 
@@ -178,7 +193,7 @@ var ExportCmd = &cobra.Command{
 				}
 				filename := makeFilename(ammo.AmmunitionBox.Description)
 
-				logrus.Infof("Writing ammo  wiki %s\n", filename)
+				logrus.Debugf("Writing ammo  wiki %s\n", filename)
 
 				path := filepath.Join(destination, filename)
 
@@ -255,9 +270,3 @@ var ExportGearCmd = &cobra.Command{
 		return nil
 	},
 }
-
-/*
-func init() {
-	ExportCmd.PersistentFlags().String(&mechfile, "mechfile", "a file containing a list of mechs to export")
-}
-*/

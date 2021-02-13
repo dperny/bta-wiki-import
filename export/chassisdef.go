@@ -128,6 +128,10 @@ func (cd ChassisDef) ToWiki() string {
 	wt.AddArg("MeleeInstability", cd.MeleeInstability)
 	wt.AddArg("MeleeToHitModifier", cd.MeleeToHitModifier)
 
+	if len(cd.ChassisTags.Items) > 0 {
+		wt.AddArg("ChassisTags", strings.Join(cd.ChassisTags.Items, ","))
+	}
+
 	locations := make([]string, len(cd.Locations))
 	for i, location := range cd.Locations {
 		locations[i] = location.ToWiki(cd.Description.Id)

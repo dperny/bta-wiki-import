@@ -52,7 +52,7 @@ var ExportCmd = &cobra.Command{
 					continue
 				}
 
-				filename := fmt.Sprintf("MechDef_%s_%s.wiki", mech.Chassis.Description.Name, variant)
+				filename := fmt.Sprintf("MechDef_%s.wiki", variant)
 
 				logrus.Debugf("Writing mech wiki %s", filename)
 

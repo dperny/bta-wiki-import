@@ -50,6 +50,10 @@ type ModData struct {
 	Ammo     []CompleteAmmunition
 }
 
+func combinedNameVariant(chassis ChassisDef) string {
+	return fmt.Sprintf("%s_%s", chassis.Description.Name, chassis.VariantName)
+}
+
 func WalkMechs(modpath string, chassisdefPaths, mechdefPaths []string) (map[string]CompleteMechDef, []error) {
 	mechs := map[string]CompleteMechDef{}
 
@@ -111,7 +115,7 @@ func WalkMechs(modpath string, chassisdefPaths, mechdefPaths []string) (map[stri
 				// storing the mechdef
 				chassis, ok := chassisDefs[md.ChassisID]
 				if ok {
-					mechs[chassis.VariantName] = CompleteMechDef{
+					mechs[combinedNameVariant(chassis)] = CompleteMechDef{
 						Chassis: chassis,
 						Mech:    md,
 					}

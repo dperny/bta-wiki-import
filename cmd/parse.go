@@ -43,6 +43,26 @@ var ParseCmd = &cobra.Command{
 				return err
 			}
 			fmt.Println(string(d))
+		case "Chassis":
+			chassis, err := export.ParseChassisDef(file)
+			if err != nil {
+				return err
+			}
+			d, err := json.MarshalIndent(chassis, "", "\t")
+			if err != nil {
+				return err
+			}
+			fmt.Println(string(d))
+		case "Mech":
+			mech, err := export.ParseMechDef(file)
+			if err != nil {
+				return err
+			}
+			d, err := json.MarshalIndent(mech, "", "\t")
+			if err != nil {
+				return err
+			}
+			fmt.Println(string(d))
 		}
 
 		return nil

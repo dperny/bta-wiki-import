@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/dperny/bta-wiki-import/cmd"
+	"github.com/bloodydoves/bta-wiki-import/cmd"
 )
 
 func main() {

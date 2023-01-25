@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/dperny/bta-wiki-import/export"
+	"github.com/bloodydoves/bta-wiki-import/export"
 
 	"github.com/spf13/cobra"
 )

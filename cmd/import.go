@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/dperny/bta-wiki-import/importer"
+	"github.com/bloodydoves/bta-wiki-import/importer"
 
 	"github.com/spf13/cobra"
 )
@@ -20,6 +20,7 @@ var (
 	flagDryRun       bool
 	flagWikiUsername string
 	flagWikiPassFile string
+	flagWikiURL      string
 )
 
 var ImportCmd = &cobra.Command{
@@ -29,6 +30,7 @@ var ImportCmd = &cobra.Command{
 		// first, check the flags for a username. Prefer this over the
 		// environment variable.
 		username := flagWikiUsername
+		url := flagWikiURL
 
 		// if there is no username flag set, then check the environment
 		if flagWikiUsername == "" {
@@ -61,7 +63,7 @@ var ImportCmd = &cobra.Command{
 			return fmt.Errorf("no wiki password provided")
 		}
 
-		return importer.Import(args[0], flagDryRun, username, password)
+		return importer.Import(args[0], flagDryRun, username, password, url)
 	},
 }
 
@@ -73,6 +75,10 @@ func init() {
 	ImportCmd.Flags().StringVarP(
 		&flagWikiUsername, "username", "u", "",
 		"the username to use when logging into the wiki",
+	)
+	ImportCmd.Flags().StringVarP(
+		&flagWikiURL, "url", "l", "",
+		"the wiki URL to log in against. Expects https://WEBSITE/api.php",
 	)
 	ImportCmd.Flags().StringVar(
 		&flagWikiPassFile, "passfile", "",

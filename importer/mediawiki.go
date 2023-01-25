@@ -13,13 +13,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const URL = "https://www.bta3062.com/api.php"
-
 // BATCH_SIZE is the number of wiki pages to retrieve at one time.
 const BATCH_SIZE = 20
 
-func Import(wikidata string, dryrun bool, username, password string) error {
-	w, err := mwclient.New(URL, "")
+func Import(wikidata string, dryrun bool, username, password, url string) error {
+	w, err := mwclient.New(url, "")
 	if err != nil {
 		return err
 	}

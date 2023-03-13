@@ -142,40 +142,40 @@ func Import(wikidata string, dryrun bool, username, password, url string) error 
 
 	deletions := map[string]struct{}{}
 
-	logrus.Info("updated pages, deleting unused")
-	for id, included := range ids {
-		pageName := fmt.Sprintf("RawData:%s", id)
-		if !included {
-			token, err := w.GetToken(mwclient.CSRFToken)
-			if err != nil {
-				logrus.Warnf("%s", err)
-				continue
-			}
-			if !dryrun {
-				logrus.Infof("DELETE %s", pageName)
-				// delete the page
-				_, err = w.Post(map[string]string{
-					"action": "delete",
-					"reason": "updater determined page no longer in use",
-					"title":  pageName,
-					"token":  token,
-				})
-				for err != nil {
-					logrus.Errorf("error deleting page %s (retrying): %s", pageName, err)
-					time.Sleep(1 * time.Second)
-					_, err = w.Post(map[string]string{
-						"action": "delete",
-						"reason": "updater determined page no longer in use",
-						"title":  pageName,
-						"token":  token,
-					})
-				}
-			} else {
-				logrus.Infof("DELETE %s", pageName)
-			}
-			deletions[id] = struct{}{}
-		}
-	}
+	logrus.Info("updated pages, deleting unused, NOT ACTUALLY DELETING RIGHT NOW")
+	//for id, included := range ids {
+	//	pageName := fmt.Sprintf("RawData:%s", id)
+	//	if !included {
+	//		token, err := w.GetToken(mwclient.CSRFToken)
+	//		if err != nil {
+	//			logrus.Warnf("%s", err)
+	//			continue
+	//		}
+	//		if !dryrun {
+	//			logrus.Infof("DELETE %s", pageName)
+	//			// delete the page
+	//			_, err = w.Post(map[string]string{
+	//				"action": "delete",
+	//				"reason": "updater determined page no longer in use",
+	//				"title":  pageName,
+	//				"token":  token,
+	//			})
+	//			for err != nil {
+	//				logrus.Errorf("error deleting page %s (retrying): %s", pageName, err)
+	//				time.Sleep(1 * time.Second)
+	//				_, err = w.Post(map[string]string{
+	//					"action": "delete",
+	//					"reason": "updater determined page no longer in use",
+	//					"title":  pageName,
+	//					"token":  token,
+	//				})
+	//			}
+	//		} else {
+	//			logrus.Infof("DELETE %s", pageName)
+	//		}
+	//		deletions[id] = struct{}{}
+	//	}
+	//}
 
 	if dryrun {
 		logrus.Infof(

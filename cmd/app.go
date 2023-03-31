@@ -8,5 +8,6 @@ func Run() {
 	RootCmd.AddCommand(ParseCmd)
 	RootCmd.AddCommand(ImportCmd)
 	RootCmd.AddCommand(LintCmd)
+	RootCmd.AddCommand(PurgeCmd)
 	RootCmd.Execute()
 }

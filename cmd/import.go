@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/bloodydoves/bta-wiki-import/importer"
+	"bta-wiki-import/importer"
 
 	"github.com/spf13/cobra"
 )

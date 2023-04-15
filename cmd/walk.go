@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/bloodydoves/bta-wiki-import/export"
+	"bta-wiki-import/export"
 )
 
 var WalkCommand = &cobra.Command{

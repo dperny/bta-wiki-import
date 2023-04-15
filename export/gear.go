@@ -27,9 +27,7 @@ type GearCustom struct {
 		EngineFactor  float64 `json:",omitempty"`
 	} `json:",omitempty"`
 
-	BonusDescriptions struct {
-		Bonuses []string `json:",omitempty"`
-	} `json:",omitempty"`
+	BonusDescriptions []string `json:",omitempty"`
 
 	EngineHeatBlock struct {
 		HeatSinkCount int `json:",omitempty"`
@@ -217,7 +215,7 @@ func (w Weapon) ToWiki() string {
 	wt.AddArg("BattleValue", w.BattleValue)
 	wt.AddArg("AllowedLocations", w.AllowedLocations)
 	wt.AddArg("DisallowedLocations", w.DisallowedLocations)
-	wt.AddArg("Bonuses", strings.Join(w.Custom.BonusDescriptions.Bonuses, ","))
+	wt.AddArg("Bonuses", strings.Join(w.Custom.BonusDescriptions, ","))
 
 	wt.AddArg("Category", w.Category)
 	wt.AddArg("Type", w.Type)
@@ -265,7 +263,7 @@ func (a CompleteAmmunition) ToWiki() string {
 	wt.AddArg("BattleValue", a.AmmunitionBox.BattleValue)
 	wt.AddArg("AllowedLocations", a.AmmunitionBox.AllowedLocations)
 	wt.AddArg("DisallowedLocations", a.AmmunitionBox.DisallowedLocations)
-	wt.AddArg("Bonuses", strings.Join(a.AmmunitionBox.Custom.BonusDescriptions.Bonuses, ","))
+	wt.AddArg("Bonuses", strings.Join(a.AmmunitionBox.Custom.BonusDescriptions, ","))
 
 	wt.AddArg("AmmoID", a.AmmunitionBox.AmmoID)
 	wt.AddArg("Capacity", a.AmmunitionBox.Capacity)
@@ -289,7 +287,7 @@ func (j JumpJet) ToWiki() string {
 	wt.AddArg("BattleValue", j.BattleValue)
 	wt.AddArg("AllowedLocations", j.AllowedLocations)
 	wt.AddArg("DisallowedLocations", j.DisallowedLocations)
-	wt.AddArg("Bonuses", strings.Join(j.Custom.BonusDescriptions.Bonuses, ","))
+	wt.AddArg("Bonuses", strings.Join(j.Custom.BonusDescriptions, ","))
 
 	wt.AddArg("JumpCapacity", j.JumpCapacity)
 	wt.AddArg("MinTonnage", j.MinTonnage)
@@ -376,7 +374,7 @@ func (g Gear) ToWiki() string {
 	wt.AddArg("ComponentType", g.ComponentType)
 	wt.AddArg("ComponentSubType", g.ComponentSubType)
 	wt.AddArg("BattleValue", g.BattleValue)
-	wt.AddArg("Bonuses", strings.Join(g.Custom.BonusDescriptions.Bonuses, ","))
+	wt.AddArg("Bonuses", strings.Join(g.Custom.BonusDescriptions, ","))
 	wt.AddArg("CustomCategories", strings.Join(categories, ","))
 
 	if g.ComponentType == "HeatSink" {

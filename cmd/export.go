@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/bloodydoves/bta-wiki-import/export"
+	"bta-wiki-import/export"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"

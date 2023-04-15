@@ -6,7 +6,6 @@ go 1.19
 
 require (
 	cgt.name/pkg/go-mwclient v1.2.0
-	github.com/bloodydoves/bta-wiki-import v0.0.0-00010101000000-000000000000
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.6.1
 )
